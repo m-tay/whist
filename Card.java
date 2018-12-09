@@ -9,7 +9,8 @@ package whist;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -39,8 +40,8 @@ public class Card implements Serializable, Comparable<Card> {
         // if none of the above return, must be equal
         return 0;                    
     }
-    
-    private enum Suit {
+   
+    public enum Suit {
         CLUBS    (1),
         DIAMONDS (2),
         HEARTS   (3),
@@ -65,7 +66,7 @@ public class Card implements Serializable, Comparable<Card> {
         }
     }
     
-    private enum Rank {
+    public enum Rank {
         TWO   (2),
         THREE (3),
         FOUR  (4),
@@ -137,7 +138,6 @@ public class Card implements Serializable, Comparable<Card> {
     // returns the max element from the given List of cards
     public static Card max(List<Card> cardList) {
         ListIterator<Card> iterator = cardList.listIterator(); // create iterator object
-        
  
         Card max = iterator.next(); // set max to be first value of cardList
         Card next;                  // create next to be used in iterator
@@ -153,6 +153,8 @@ public class Card implements Serializable, Comparable<Card> {
         
         return max;
     }
+    
+
     
     // main contains all test code
     public static void main(String[] args) {
@@ -200,11 +202,33 @@ public class Card implements Serializable, Comparable<Card> {
         cardList.add(new Card(Rank.TWO, Suit.CLUBS));
         cardList.add(new Card(Rank.FOUR, Suit.CLUBS));
         cardList.add(new Card(Rank.THREE, Suit.CLUBS));
+        cardList.add(new Card(Rank.THREE, Suit.SPADES));
+        cardList.add(new Card(Rank.NINE, Suit.SPADES));
+        cardList.add(new Card(Rank.THREE, Suit.HEARTS));
+        cardList.add(new Card(Rank.SEVEN, Suit.HEARTS));
+        cardList.add(new Card(Rank.NINE, Suit.DIAMONDS));
         
         // run max(), print result
         Card maxCard = Card.max(cardList);
         System.out.println("maxCard = " + maxCard);
 
+        // test CompareDescending comparator
+        Collections.sort(cardList, new CompareDescending());
+        
+        System.out.println("CompareDescending Comparator test:");
+        for(int i = 0; i < cardList.size(); i++) {
+            System.out.println("Sorted cardList [" + i + "] = " + cardList.get(i));
+            
+        }
+        
+        // test CompareRank comparator
+        Collections.sort(cardList, new CompareRank());
+        
+        System.out.println("CompareRank Comparator test:");
+        for(int i = 0; i < cardList.size(); i++) {
+            System.out.println("Sorted cardList [" + i + "] = " + cardList.get(i));
+            
+        }
         
         
     }
