@@ -3,7 +3,7 @@
 // 
 // Author:      Matthew Taylor
 // 
-// Description: TODO
+// Description: Stores values needed to describe cards and methods to sort them
 
 package whist;
 
