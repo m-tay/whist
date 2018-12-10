@@ -137,7 +137,8 @@ public class Card implements Serializable, Comparable<Card> {
     
     // returns the max element from the given List of cards
     public static Card max(List<Card> cardList) {
-        ListIterator<Card> iterator = cardList.listIterator(); // create iterator object
+        // create iterator object
+        ListIterator<Card> iterator = cardList.listIterator(); 
  
         Card max = iterator.next(); // set max to be first value of cardList
         Card next;                  // create next to be used in iterator
@@ -153,8 +154,28 @@ public class Card implements Serializable, Comparable<Card> {
         
         return max;
     }
-    
 
+    // takes a list of Cards, a Card and returns an ArrayList of Cards that
+    // are greater than the given input Card
+    public static ArrayList<Card> chooseGreater(List<Card> cardList, Comparator comp, Card inputCard) {
+        
+        // empty ArrayList to store cards to return
+        ArrayList<Card> newCardList = new ArrayList<>();
+        
+        // create iterator object
+        ListIterator<Card> iterator = cardList.listIterator(); 
+        
+        // traverse list with iterator
+        while(iterator.hasNext()) {
+            Card comparingCard = iterator.next(); // get next Card in List
+            
+            // if comparison is > 0 (so, greater than)
+            if(comp.compare(comparingCard, inputCard) > 0){
+                newCardList.add(comparingCard); // add card to list
+            }
+        }
+        return newCardList; // return list with all cards found greater than input
+    }
     
     // main contains all test code
     public static void main(String[] args) {
@@ -230,7 +251,22 @@ public class Card implements Serializable, Comparable<Card> {
             
         }
         
+        // test chooseGreater() static method
+        ArrayList<Card> greaterList1 = new ArrayList(); // make empty ArrayList
+        greaterList1 = chooseGreater(cardList, new CompareDescending(), testCardDefault);
         
+        System.out.println("chooseGreater() - CompareDescending test:");
+        for(int i = 0; i < greaterList1.size(); i++) {
+            System.out.println("greaterList[" + i + "] = " + greaterList1.get(i));
+        }    
+        
+        ArrayList<Card> greaterList2 = new ArrayList(); // make empty ArrayList
+        greaterList2 = chooseGreater(cardList, new CompareRank(), testCardDefault);
+        
+        System.out.println("chooseGreater() - CompareRank test:");
+        for(int i = 0; i < greaterList2.size(); i++) {
+            System.out.println("greaterList[" + i + "] = " + greaterList2.get(i));
+        }    
     }
 }
 
