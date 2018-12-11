@@ -10,8 +10,9 @@ package whist;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 
-public class Deck implements Serializable {
+public class Deck implements Serializable, Iterable<Card> {
     
     private static final long serialVersionUID = 200L; 
     
@@ -20,6 +21,15 @@ public class Deck implements Serializable {
     
     // default constructor - creates shuffled deck
     public Deck() {
+       newDeck();   // call initialiser method
+    }
+    
+    // returns number of cards left in deck
+    public int size() {
+        return deck.size();
+    }
+    
+    public final void newDeck() {
         // add all 52 possible cards
         deck.add(new Card(Card.Rank.TWO,    Card.Suit.CLUBS));
         deck.add(new Card(Card.Rank.THREE,  Card.Suit.CLUBS));
@@ -75,8 +85,38 @@ public class Deck implements Serializable {
         deck.add(new Card(Card.Rank.ACE,    Card.Suit.SPADES));
         
         // shuffle the deck
-        Collections.shuffle(deck);        
+        Collections.shuffle(deck); 
+    }
+
+    @Override
+    public Iterator<Card> iterator() {
+        return new DeckIterator();
+    }
+       
+    // custom iterator that traverses a Deck and returns Cards
+    private class DeckIterator<Card> implements Iterator<Card> {
+
+        int index = 0; // index to keep track of position
+        
+        @Override
+        public boolean hasNext() { // checks if there is another card in Deck
+            return index < deck.size();
+        }
+
+        @Override
+        public Card next() { // returns card at position, then increments
+            return (Card)deck.get(index++);
+        }        
     }
     
-    
+    public static void main(String args[]) {
+        // create deck for testing
+        Deck myDeck = new Deck();
+        
+        // iterator test
+        for(Card c : myDeck) {
+            System.out.println(c);
+        }
+    }
+
 }
