@@ -2,14 +2,19 @@ package whist;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import whist.Card.*;
 
-public class Hand implements Serializable {
+public class Hand implements Serializable, Iterable {
     
     private static final long serialVersionUID = 300L; 
     
     // holds all the cards in the hand
     private ArrayList<Card> hand;
+    
+    // used to set orderAdded of cards (default to 0)
+    int cardOrder = 0;
     
     // holds the count of all the suits
     private int countClubs = 0;
@@ -30,22 +35,13 @@ public class Hand implements Serializable {
         // use arraylist constructor to shallow copy in cards
         hand = new ArrayList<>(cards);         
         
-        // create initial suit count
+        // create initial suit count and ordering
         hand.forEach((Card i) -> {
-            switch (i.getSuit()) {
-                case CLUBS:  
-                    countClubs++;
-                    break;
-                case DIAMONDS:
-                    countDiamonds++;
-                    break;
-                case HEARTS:
-                    countHearts++;
-                    break;
-                case SPADES:
-                    countSpades++;
-                    break;
-                }
+            // increases the suit counter
+            increaseSuitCount(i);
+            
+            // sets the cards order added
+            setOrderAdded(i);
         });        
     }
     
@@ -56,7 +52,17 @@ public class Hand implements Serializable {
         
         // create initial suit count
         hand.forEach((Card i) -> {
-            switch (i.getSuit()) {
+            // increases the suit counter
+            increaseSuitCount(i);
+
+            // sets the cards order added
+            setOrderAdded(i);
+            
+        }); 
+    }
+    
+    private void increaseSuitCount (Card card) {
+        switch (card.getSuit()) {
                 case CLUBS:  
                     countClubs++;
                     break;
@@ -69,8 +75,13 @@ public class Hand implements Serializable {
                 case SPADES:
                     countSpades++;
                     break;
-            }
-        }); 
+                }       
+    }
+    
+    // sets the card's order added, increments cardOrder
+    private void setOrderAdded (Card card) {
+        card.setOrder(cardOrder);
+        cardOrder++;
     }
     
     // generates and stores the value(s) for the hand
@@ -100,7 +111,6 @@ public class Hand implements Serializable {
                     
                     // add on rank value
                     // use modulus to rotate through ace low/high values
-                    System.out.println("aceValues is " + (aceValues[j % 2]));
                     elementValue += aceValues[j % 2];
                     
                     // re-add element back in correct position
@@ -125,7 +135,118 @@ public class Hand implements Serializable {
         return vals;
     }
     
-   public static void main(String args[]) {
+    // add method that takes a card
+    public void add(Card card) {
+       hand.add(card);
+       increaseSuitCount(card);
+    }
+    
+    // add method that takes a Collection
+    public void add(Collection<Card> collection) {
+        // create iterator
+        Iterator<Card> it = collection.iterator();
+        
+        // iterate through collection
+        while(it.hasNext()) {
+            Card card = it.next();
+            hand.add(card);
+            increaseSuitCount(card);
+        }
+        
+    }
+    
+    // add method that takes another Hand
+    public void add(Hand h) {
+        // create iterator
+        Iterator handIt = h.iterator();
+        
+        // iterate through other hand and add it to this one
+        while(handIt.hasNext()) {
+            hand.add((Card)handIt.next());
+        }
+    }
+
+    // removes single card (if present), returns bool about success
+    public boolean remove(Card card) {
+        // loop through hand, if given card is found, remove it and return true
+        for(int i = 0; i < hand.size(); i++) {
+            if(hand.get(i) == card) {
+                hand.remove(card);  // remove card
+                return true;        
+            }
+        }
+        
+        // if card not found in hand, return false
+        return false;        
+    }
+    
+    
+    
+    
+    @Override
+    public Iterator iterator() {
+        return new HandIterator();
+    }
+    
+    private class HandIterator implements Iterator<Card> {
+
+        int index = 0;
+        int lastOrderFound = -1;
+        int smallestOrderIndex = -1;// holds index of smallest in order
+        int smallestOrder;     // holds smallest ordering found
+        
+        @Override
+        public boolean hasNext() {
+            return index < hand.size();
+        }
+
+        // finds smallest orderAdded in list, returns it
+        @Override
+        public Card next() {
+            int smallestOrder = 100;     // holds smallest ordering found
+            
+            // loop through entire hand
+            for(int i = 0; i < hand.size(); i++) {
+
+//                System.out.println("for loop i = " + i);
+//                System.out.println("hand.size() = " + hand.size());
+
+                // get card order
+                int cardOrder = hand.get(i).getOrder();
+                
+                // check if it the smallest order greater than any ordering
+                // value currently found
+                if(cardOrder < smallestOrder && cardOrder > lastOrderFound) {
+                    smallestOrder = cardOrder; // set smallest order
+                    smallestOrderIndex = i;    // set index of smallest order                    
+                }
+            }
+            
+            // set lastOrderFound so we know what the next smallest cardOrder
+            // has to be greater than
+            lastOrderFound = smallestOrder;
+            index++;
+            return hand.get(smallestOrderIndex);
+        }
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        
+        s.append("Hand contains:\n");
+        
+        for(int i = 0; i < hand.size(); i++) {
+            s.append("> ");
+            s.append(hand.get(i)); // Card already has a toString()
+            s.append("\n");
+        }
+        
+        return s.toString();
+    }
+    
+    
+    public static void main(String args[]) {
         // test each constructor type
         Hand emptyHand = new Hand();
         System.out.println("Empty constructor test:");
@@ -167,8 +288,37 @@ public class Hand implements Serializable {
         for(int i = 0; i < listHandValues.size(); i++) {
             System.out.println("listHandValues["+i+"] = " + listHandValues.get(i));
         }
+        System.out.println("\n");
+        
+        // test add() methods
+        // test adding single card
+        System.out.println("add() methods testing:");
+        Card newCard = new Card(Rank.FIVE, Suit.HEARTS);
+        emptyHand.add(newCard);
+        System.out.println(emptyHand);
+        
+        // test adding Collection
+        ArrayList<Card> cardList2 = new ArrayList<>();
+        cardList2.add(new Card(Rank.FIVE, Suit.CLUBS));
+        cardList2.add(new Card(Rank.QUEEN, Suit.HEARTS));
+        System.out.println("Test adding Collection to Hand:");
+        emptyHand.add(cardList2);
+        System.out.println(emptyHand);
+        
+        
+        // test adding Hand
+        System.out.println("Test adding Hand to hand:");
+        emptyHand.add(listHand);
+        System.out.println(emptyHand);
+        System.out.println("\n");
+        
+        
+        
+        
         
         
    }
+
+
     
 }

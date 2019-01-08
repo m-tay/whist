@@ -109,6 +109,19 @@ public class Card implements Serializable, Comparable<Card> {
     private final Suit suit;
     private final Rank rank;
     
+    // holds the order added to a given hand
+    private int orderAdded;
+    
+    // setter of orderAdded
+    public void setOrder(int i) {
+        orderAdded = i;
+    }
+    
+    // getter for orderAdded
+    public int getOrder() {
+        return orderAdded;
+    }
+    
     // default constructor
     public Card() {
         this.rank = Rank.FIVE;
