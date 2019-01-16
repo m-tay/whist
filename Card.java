@@ -190,6 +190,31 @@ public class Card implements Serializable, Comparable<Card> {
         return newCardList; // return list with all cards found greater than input
     }
     
+    
+    // custom equals method, for easy comparison between cards
+    @Override
+    public boolean equals(Object other) {
+        boolean equality = false;
+        
+        // if card being compared to itself, always true
+        if(other == this)
+            return true;
+        
+        // check if the other is of type Card, return false if not
+        if(!(other instanceof Card)) 
+            return false;
+        
+        // cast object to Card to compare member variables
+        Card o = (Card)other;
+        
+        // set equality if suits and ranks are the same
+        if(o.getSuit() == this.getSuit() && o.getRank() == this.getRank()) 
+            equality = true;
+        
+        // return the equality result
+        return equality;        
+    }
+    
     // main contains all test code
     public static void main(String[] args) {
         
@@ -261,7 +286,6 @@ public class Card implements Serializable, Comparable<Card> {
         System.out.println("CompareRank Comparator test:");
         for(int i = 0; i < cardList.size(); i++) {
             System.out.println("Sorted cardList [" + i + "] = " + cardList.get(i));
-            
         }
         
         // test chooseGreater() static method

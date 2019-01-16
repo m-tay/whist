@@ -7,15 +7,29 @@
 
 package whist;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.ArrayList; 
 import java.util.Collections;
 import java.util.Iterator;
 import whist.Card.*;
 
 public class Deck implements Serializable, Iterable<Card> {
     
-    private static final long serialVersionUID = 200L; 
+    private static final long serialVersionUID = 49L; 
+    
+    // custom serialization methods - makes the Deck class serialized using
+    // the SpadeIterator     
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        
+    }
+    
+    private void readObject(ObjectInputStream in) throws IOException, 
+                                                         ClassNotFoundException{
+        
+    }
     
     // ArrayList inited with fixed size but not final - cards can be removed
     private ArrayList<Card> deck = new ArrayList(52);
@@ -99,7 +113,7 @@ public class Deck implements Serializable, Iterable<Card> {
     }
        
     // custom iterator that traverses a Deck and returns Cards
-    private class DeckIterator<Card> implements Iterator<Card> {
+    private class DeckIterator implements Iterator {
 
         int index = 0; // index to keep track of position
         
@@ -119,54 +133,54 @@ public class Deck implements Serializable, Iterable<Card> {
 
         }
     }
+       
     
     // traverses spades in the deck
-    private class SpadeIterator<Card> implements Iterator<Card> {
+    private class SpadeIterator implements Iterator {
+        
+        int index = 0; // index to keep track of position
         
         @Override
-        public boolean hasNext() {
-            DeckIterator<Card> it = new DeckIterator<>();
+        public boolean hasNext() {        
+            
+            // loop through remaining cards (start from index)
+            for(int i = index; i < deck.size(); i++) {
                 
-            // iterate through list
-            while(it.hasNext()) {
-                Card nextCard = it.next();
-                               
-                // check if any of the cards are spades
-                // THIS DOES NOT WORK
-                if(nextCard == Suit.SPADES)
-                    // return true if any spades are foud
+                // get the next card
+                Card nextCard = deck.get(i);
+                
+                // return true if it is a SPADE
+                if(nextCard.getSuit() == Suit.SPADES) {
+                    index = i + 1;
                     return true;
+                }
             }
             
-            // if no spades found, return false
+            // otherwise, if no spades remain, return false
             return false;
         }
 
         @Override
         public Card next() {
-            DeckIterator it = new DeckIterator();
-            Card nextCard;
             
-            // iterate through list
-            while(it.hasNext()) {
-                // get the next card
-                nextCard = (Card)it.next();
+            // loop through remaining cards
+            for(int i = (index - 1); i < deck.size(); i++) {
+                Card nextCard = deck.get(i);
                 
-                // check if it's a spade
-                // THIS DOES NOT WORK
-                if(nextCard == Suit.SPADES)
-                    // return true if any spades are foud
-                    return nextCard;                
-            }            
+                // if next card is a spade, return it
+                if(nextCard.getSuit() == Suit.SPADES) {
+                    return nextCard;
+                }    
+            }
             
-            return null; // TODO: throw exception           
+            // should never happen
+            return null;
         }
-        
     }
         
     public Card deal() {
         // create new iterator
-        DeckIterator it = new DeckIterator<>();
+        DeckIterator it = new DeckIterator();
         
         // get the top card from the deck, then remove from deck
         Card topCard = (Card)it.next();
@@ -181,18 +195,24 @@ public class Deck implements Serializable, Iterable<Card> {
         Deck myDeck = new Deck();
         
         // iterator test
+        System.out.println("Iterator test:");
         for(Card c : myDeck) {
             System.out.println(c);
         }
+        System.out.println("\n");
         
         // deal() method test
+        System.out.println("Testing deal() method:");
         Card dealtCard = myDeck.deal();
         System.out.println("Dealt card is " + dealtCard);
+        System.out.println("\n");
         
         // print out deck to check deal() works
+        System.out.println("Printing deck to check deal() works:");
         for(Card c : myDeck) {
             System.out.println(c);
         }
+        System.out.println("\n");
         
         // test spadeIterator
         System.out.println("SpadeIterator test:");
