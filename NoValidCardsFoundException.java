@@ -7,7 +7,7 @@
 
 package whist;
 
-public class NoValidCardsFoundException extends Exception {
+public class NoValidCardsFoundException extends RuntimeException {
     
     public NoValidCardsFoundException(String message) {
         super(message);

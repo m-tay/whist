@@ -94,17 +94,17 @@ public class BasicStrategy implements Strategy {
        // case 2: partner winning the trick
        // compare if trick's currently winning player matches partner number
         else if(currentTrick.getWinningPlayer() == partnerNumber) {
-          
-           // setup to check logic for part 2:
-           // hand is already sorted, so iterator's next will return min card
-           Iterator it = hand.sortedOrderIterator();
+
+            // setup to check logic for part 2:
+            // hand is already sorted, so iterator's next will return min card
+            Iterator it = hand.sortedOrderIterator();
                       
-           // follow suit if possible, so get partner's suit
-           Card partnersCard = currentTrick.getCardByPlayerNum(partnerNumber);
+            // follow suit if possible, so get partner's suit
+            Card partnersCard = currentTrick.getCardByPlayerNum(partnerNumber);
                       
-           // actual case 2 logic:
-           // if player's hand has a suit matching partners card
-           if(hand.countSuit(partnersCard.getSuit()) > 0) {
+            // actual case 2 logic:
+            // if player's hand has a suit matching partners card
+            if(hand.countSuit(partnersCard.getSuit()) > 0) {
                 // loop through iterator until card found
                 boolean cardNotFound = true; // runs the while loop
                
@@ -168,10 +168,7 @@ public class BasicStrategy implements Strategy {
         
         // case 3: partner not winning or has yet to play
         else {
-            // get the current best card in the trick
-            int winningPlayer = currentTrick.getWinningPlayer();
-            Card winningCard = currentTrick.getCardByPlayerNum(winningPlayer);            
-            
+            System.out.println("case3 detected");
             // if player can follow suit...
             if(hand.hasSuit(currentTrick.getLeadSuit())) {
                 // ... and can beat current winning card with highest card
@@ -190,29 +187,22 @@ public class BasicStrategy implements Strategy {
                     }
                 } 
             }
+            
             // if player cannot follow suit, trump if possible
             else {
+                
                 // check if player can trump
                 if(hand.hasSuit(currentTrick.getTrumpSuit())) {
-                    
+                    return hand.getMax(currentTrick.getTrumpSuit());
                 }
                 // else, if player cannot trump
                 else {
-                    
+                    // just return minimum card
+                    return hand.getMin();
                 }
-                
             }
-            
-            
         }
         
-       
-       
-
-       
-       
-       
-       
     return chosenCard;
     
     }
@@ -240,15 +230,13 @@ public class BasicStrategy implements Strategy {
         BasicStrategy strat = new BasicStrategy(1);
         
         // test case 1 of strategy
-        Card chooseCardTest1 = new Card();
-        chooseCardTest1 = strat.chooseCard(testHand, testTrick);
+        Card chooseCardTest1 = strat.chooseCard(testHand, testTrick);
         System.out.println("Choose card (Case 1) test: " + chooseCardTest1);
         
         // set up for test of case 2
         Card testCard1 = new Card(Card.Rank.SIX, Card.Suit.SPADES);
         Card testCard2 = new Card(Card.Rank.FIVE, Card.Suit.SPADES);
         Card testCard3 = new Card(Card.Rank.TEN, Card.Suit.SPADES);
-        Card testCard4 = new Card(Card.Rank.SIX, Card.Suit.HEARTS);
         
         // add cards to trick for player 3 and 4 (so player 3 is the strat's
         // partner and it checks that card for what to do next)
@@ -256,17 +244,28 @@ public class BasicStrategy implements Strategy {
         testTrick.addCard(testCard2, 4);
         
         // test case 2 
-        Card chooseCardTest2 = new Card();
-        chooseCardTest2 = strat.chooseCard(testHand, testTrick);
+        Card chooseCardTest2 = strat.chooseCard(testHand, testTrick);
         System.out.println("Choose card (Case 2) test: " + chooseCardTest2);
         
         // test case 3
         // add a new winning card by player 2 - chooseCard() should now try to
         // beat it
         testTrick.addCard(testCard3, 2);
-        Card chooseCardTest3 = new Card();
-        chooseCardTest3 = strat.chooseCard(testHand, testTrick);
+        Card chooseCardTest3 = strat.chooseCard(testHand, testTrick);
         System.out.println("Choose card (Case 3) test: " + chooseCardTest3);
+        
+        // set up for further testing of case 3
+        // (partner not winning + player can trump)
+        Card testCard4 = new Card(Card.Rank.THREE, Card.Suit.DIAMONDS);
+        Card testCard5 = new Card(Card.Rank.FIVE, Card.Suit.DIAMONDS);
+        Trick testTrick2 = new Trick(Card.Suit.SPADES);
+        
+        testTrick2.addCard(testCard4, 3);
+        testTrick2.addCard(testCard5, 4);
+        
+        Card chooseCardTest4 = strat.chooseCard(testHand, testTrick2);
+        System.out.println("Choose card (Case 3) test: " + chooseCardTest4);
+        
         
         
     }

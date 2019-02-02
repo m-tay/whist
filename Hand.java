@@ -313,21 +313,39 @@ public class Hand implements Serializable, Iterable {
     }
     
     // returns the highest card of a given suit
-    public Card getMax(Suit suit) {
+    public Card getMax(Suit suit) throws NoValidCardsFoundException {
         // sort into descending order
         this.sortByDescending();
         
         // create iterator
         Iterator it = this.sortedOrderIterator();
         
+        // iterate through cards
         while(it.hasNext()) {
-            Card maxCard = (Card) it.next();
-            if(maxCard.getSuit() == suit)
-                return maxCard;
+            Card nextCard = (Card) it.next();
+            
+            // if next card matches given suit, it is highest of that suit in
+            // the hand, so return it
+            if(nextCard.getSuit() == suit)
+                return nextCard;
         }
         
-        return null;
+        // if no cards of given suit are found, throw exception
+        throw new NoValidCardsFoundException("No cards of " + suit + " found");
         
+    }
+    
+    // gets the minimum card by rank of any suit
+    public Card getMin() throws NoValidCardsFoundException {
+        // sort into ascending order        
+        this.sortByRank();
+        
+        // check for hand being empty
+        if(hand.isEmpty())
+            throw new NoValidCardsFoundException("Hand is empty");
+                
+        // return card by first index - will be lowest by rank because of sort
+        return hand.get(0);        
     }
     
     
