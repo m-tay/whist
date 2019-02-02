@@ -40,10 +40,12 @@ public class Deck implements Serializable, Iterable<Card> {
     }
     
     // returns number of cards left in deck
+    // TODO: actually use this method???
     public int size() {
         return deck.size();
     }
     
+    // TODO: run this with just 2 for loops??
     public final void newDeck() {
         // add all 52 possible cards
         deck.add(new Card(Card.Rank.TWO,    Card.Suit.CLUBS));
@@ -113,7 +115,7 @@ public class Deck implements Serializable, Iterable<Card> {
     }
        
     // custom iterator that traverses a Deck and returns Cards
-    private class DeckIterator implements Iterator {
+    private class DeckIterator implements Iterator<Card> {
 
         int index = 0; // index to keep track of position
         
@@ -136,7 +138,7 @@ public class Deck implements Serializable, Iterable<Card> {
        
     
     // traverses spades in the deck
-    private class SpadeIterator implements Iterator {
+    private class SpadeIterator implements Iterator<Card> {
         
         int index = 0; // index to keep track of position
         
@@ -183,7 +185,7 @@ public class Deck implements Serializable, Iterable<Card> {
         DeckIterator it = new DeckIterator();
         
         // get the top card from the deck, then remove from deck
-        Card topCard = (Card)it.next();
+        Card topCard = it.next();
         it.remove(); 
         
         // return the dealt card

@@ -22,7 +22,7 @@ public class Hand implements Serializable, Iterable {
     private int countDiamonds = 0;
     private int countHearts = 0;
     private int countSpades = 0;
-            
+    
     // stores the values of the cards
     private ArrayList<Integer> values;
     
@@ -181,12 +181,12 @@ public class Hand implements Serializable, Iterable {
     // add method that takes another Hand
     public void add(Hand h) {
         // create iterator
-        Iterator handIt = h.iterator();
+        OrderAddedIterator handIt = h.iterator();
         
         // iterate through other hand and add it to this one
         while(handIt.hasNext()) {
             // get next card
-            Card nextCard = (Card)handIt.next();
+            Card nextCard = handIt.next();
             hand.add(nextCard);         // get next card
             increaseSuitCount(nextCard);// update suit counter
             setOrderAdded(nextCard);    // set order added of card
@@ -213,12 +213,12 @@ public class Hand implements Serializable, Iterable {
         int cardsRemoved = 0;   // stores number of cards removed
 
         // create iterator
-        Iterator handIt = other.iterator();
+        OrderAddedIterator handIt = other.iterator();        
         
         // iterate through other hand, remove any found cards and count up
         // removed cards for later comparison
         while(handIt.hasNext()) {
-            Card nextCard = (Card)handIt.next();
+            Card nextCard = handIt.next();
             System.out.println("nextCard is: " + nextCard);
             if(hand.remove(nextCard)) {
                 cardsRemoved++;
@@ -241,10 +241,11 @@ public class Hand implements Serializable, Iterable {
     }
     
     @Override
-    public Iterator iterator() {
+    public OrderAddedIterator iterator() {
         return new OrderAddedIterator();
     }
     
+    // iterator that returns cards in order of order added
     private class OrderAddedIterator implements Iterator<Card> {
 
         int index = 0;
@@ -284,6 +285,52 @@ public class Hand implements Serializable, Iterable {
         }
     }
     
+    
+    public Iterator sortedOrderIterator() {
+        return new OrderIterator();
+    }
+    
+    // iterator that returns card in order it is sorted into
+    private class OrderIterator implements Iterator<Card> {
+        
+        int index = 0;       
+        
+        @Override
+        public boolean hasNext() {
+            return index < hand.size();
+        }
+
+        @Override
+        public Card next() {
+            return hand.get(index++);
+        }
+        
+    }
+    
+    // returns the max card in a given hand
+    public Card getMax() {
+        return Card.max(hand);
+    }
+    
+    // returns the highest card of a given suit
+    public Card getMax(Suit suit) {
+        // sort into descending order
+        this.sortByDescending();
+        
+        // create iterator
+        Iterator it = this.sortedOrderIterator();
+        
+        while(it.hasNext()) {
+            Card maxCard = (Card) it.next();
+            if(maxCard.getSuit() == suit)
+                return maxCard;
+        }
+        
+        return null;
+        
+    }
+    
+    
     // sorts hand into ascending order
     public void sort() {
         Collections.sort(hand);
@@ -292,6 +339,12 @@ public class Hand implements Serializable, Iterable {
     // sorts hand into rank order
     public void sortByRank() {
         Collections.sort(hand, new CompareRank());
+    }
+    
+    
+    // sorts hand into descending order
+    public void sortByDescending() {
+        Collections.sort(hand, new CompareDescending());
     }
     
     // returns the count from the given suit
@@ -363,7 +416,7 @@ public class Hand implements Serializable, Iterable {
         
         return s.toString();
     }
-    
+       
     
     public static void main(String args[]) {
         // test each constructor type
@@ -433,9 +486,9 @@ public class Hand implements Serializable, Iterable {
         
         // test iterator method
         System.out.println("Test iterator method:");
-        Iterator handIt = testingHand.iterator();
+        OrderAddedIterator handIt = testingHand.iterator();
         while(handIt.hasNext()) {
-            Card nextCard = (Card)handIt.next();
+            Card nextCard = handIt.next();
             System.out.println("Next card from iterator is: " + nextCard + "with order " + nextCard.getOrder());
             
         }
@@ -478,6 +531,10 @@ public class Hand implements Serializable, Iterable {
         testingHand.sortByRank();
         System.out.println(testingHand);
         
+        System.out.println("test sorting a Hand (by descending):");
+        testingHand.sortByDescending();
+        System.out.println(testingHand);
+        
         // test countSuit() method
         System.out.println("Test countSuit method:");
         System.out.println("testingHand has " + 
@@ -498,6 +555,11 @@ public class Hand implements Serializable, Iterable {
                             testingHand.hasSuit(Suit.SPADES));
         System.out.println("testingHand has clubs = " + 
                             testingHand.hasSuit(Suit.CLUBS));       
+        System.out.println("\n");
+        
+        // testing getMax() method
+        System.out.println(testingHand);
+        System.out.println("testingHand getMax() is " + testingHand.getMax());
         
    }
 
