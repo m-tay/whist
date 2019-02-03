@@ -180,6 +180,7 @@ public class Deck implements Serializable, Iterable<Card> {
         }
     }
         
+    // gets the top card, removes it from the deck and returns it
     public Card deal() {
         // create new iterator
         DeckIterator it = new DeckIterator();

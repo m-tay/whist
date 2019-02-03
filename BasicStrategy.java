@@ -67,7 +67,7 @@ public class BasicStrategy implements Strategy {
                 
         // case 1: first player
         // detect if first player (currentTrick returns -1)
-        if(currentTrick.getWinningPlayer() == -1) {
+        if(currentTrick.findWinner() == -1) {
 
             // get the max card, add to arraylist
             ArrayList<Card> maxCardList = new ArrayList();
@@ -93,14 +93,14 @@ public class BasicStrategy implements Strategy {
         
        // case 2: partner winning the trick
        // compare if trick's currently winning player matches partner number
-        else if(currentTrick.getWinningPlayer() == partnerNumber) {
+        else if(currentTrick.findWinner() == partnerNumber) {
 
             // setup to check logic for part 2:
             // hand is already sorted, so iterator's next will return min card
             Iterator it = hand.sortedOrderIterator();
                       
             // follow suit if possible, so get partner's suit
-            Card partnersCard = currentTrick.getCardByPlayerNum(partnerNumber);
+            Card partnersCard = currentTrick.getCard(partnerNumber);
                       
             // actual case 2 logic:
             // if player's hand has a suit matching partners card
@@ -168,7 +168,6 @@ public class BasicStrategy implements Strategy {
         
         // case 3: partner not winning or has yet to play
         else {
-            System.out.println("case3 detected");
             // if player can follow suit...
             if(hand.hasSuit(currentTrick.getLeadSuit())) {
                 // ... and can beat current winning card with highest card
@@ -208,8 +207,11 @@ public class BasicStrategy implements Strategy {
     }
 
     @Override
+    // must override method, but basic strategy does not consider completed
+    // tricks or played cards
     public void updateData(Trick completedTrick) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String msg = "Not supposed by BasicStrategy.";
+        throw new UnsupportedOperationException(msg);
     }
     
     // testing harnesses
@@ -240,8 +242,8 @@ public class BasicStrategy implements Strategy {
         
         // add cards to trick for player 3 and 4 (so player 3 is the strat's
         // partner and it checks that card for what to do next)
-        testTrick.addCard(testCard1, 3);
-        testTrick.addCard(testCard2, 4);
+        testTrick.setCard(testCard1, 3);
+        testTrick.setCard(testCard2, 4);
         
         // test case 2 
         Card chooseCardTest2 = strat.chooseCard(testHand, testTrick);
@@ -250,7 +252,7 @@ public class BasicStrategy implements Strategy {
         // test case 3
         // add a new winning card by player 2 - chooseCard() should now try to
         // beat it
-        testTrick.addCard(testCard3, 2);
+        testTrick.setCard(testCard3, 2);
         Card chooseCardTest3 = strat.chooseCard(testHand, testTrick);
         System.out.println("Choose card (Case 3) test: " + chooseCardTest3);
         
@@ -258,10 +260,10 @@ public class BasicStrategy implements Strategy {
         // (partner not winning + player can trump)
         Card testCard4 = new Card(Card.Rank.THREE, Card.Suit.DIAMONDS);
         Card testCard5 = new Card(Card.Rank.FIVE, Card.Suit.DIAMONDS);
-        Trick testTrick2 = new Trick(Card.Suit.SPADES);
+        Trick testTrick2 = new Trick(Card.Suit.CLUBS);
         
-        testTrick2.addCard(testCard4, 3);
-        testTrick2.addCard(testCard5, 4);
+        testTrick2.setCard(testCard4, 3);
+        testTrick2.setCard(testCard5, 4);
         
         Card chooseCardTest4 = strat.chooseCard(testHand, testTrick2);
         System.out.println("Choose card (Case 3) test: " + chooseCardTest4);

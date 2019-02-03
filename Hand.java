@@ -419,6 +419,10 @@ public class Hand implements Serializable, Iterable {
         return result;
     }
     
+    // returns how many cards are in the hand
+    public int size() {
+        return hand.size();
+    }
     
     @Override
     public String toString() {
@@ -427,7 +431,10 @@ public class Hand implements Serializable, Iterable {
         s.append("Hand contains:\n");
         
         for(int i = 0; i < hand.size(); i++) {
-            s.append("> ");
+            if(i > 9)
+                s.append(" " + i + ": ");
+            else
+                s.append(" " + i + " : ");
             s.append(hand.get(i)); // Card already has a toString()
             s.append("\n");
         }

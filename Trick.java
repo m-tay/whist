@@ -17,11 +17,12 @@ public class Trick {
     private ArrayList<Card> cards = new ArrayList<>();      // holds cards
     private ArrayList<Integer> players = new ArrayList<>(); // holds player numbers
     private ArrayList<Boolean> lead = new ArrayList<>();    // holds if card is lead card
-      
-    private final Suit trumpSuit;    
+    
+    // stores the trump suit of the trick
+    private static Suit trumps;    
     
     public Trick(Suit trump) {
-        trumpSuit = trump;
+        trumps = trump;
     }
     
     // getter to return the number of cards currently in the trick
@@ -46,7 +47,7 @@ public class Trick {
     }
         
     // adds a card to the trick
-    public void addCard(Card c, int playerNum) {
+    public void setCard(Card c, int playerNum) {
         cards.add(c);
         players.add(playerNum);
 
@@ -58,11 +59,11 @@ public class Trick {
     }
     
     // determines winning player and returns the player number
-    // returns -1 if no players are winning
-    public int getWinningPlayer() {
+    // returns -1 if no players are winning (no cards played into trick)
+    public int findWinner() {
         // initial check to see if any cards have been played
         // return -1 if nothing has been played
-        if(cards.size() == 0)
+        if(cards.isEmpty())
             return -1;
         
         int winningIndex = 0; // holds index of winning card
@@ -74,11 +75,11 @@ public class Trick {
             Card currentlyWinning = cards.get(winningIndex);         
             
             // if suit matches trump suit
-            if(cards.get(i).getSuit() == trumpSuit) {
+            if(cards.get(i).getSuit() == trumps) {
                 
                 // if currently winning card isn't a trump suit card then
                 // set winning card to a trump and set trump found flag
-                if(currentlyWinning.getSuit() != trumpSuit) {
+                if(currentlyWinning.getSuit() != trumps) {
                     winningIndex = i;
                     trumpsFound = true;
                 }
@@ -101,7 +102,7 @@ public class Trick {
     }
     
     // returns a card corresponding to the player that played it
-    public Card getCardByPlayerNum(int playerNum) {
+    public Card getCard(int playerNum) {
         int index = -1;
         
         for(int i = 0; i < players.size(); i++) {
@@ -114,7 +115,27 @@ public class Trick {
     
     // returns the trump suit of the trick
     public Suit getTrumpSuit() {
-        return trumpSuit;
+        return trumps;
+    }
+    
+    @Override
+    // returns basic details of trick
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        
+        // check if trick is currently empty
+        if(cards.isEmpty()) {
+            s.append("No cards currently played into trick.\n");
+        }
+        else {
+            // loop through trick
+            for(int i = 0; i < cards.size(); i++) {
+                s.append("Card " + (i+1) + " by Player " + (players.get(i) + 1));
+                s.append(": " + cards.get(i) + "\n");
+            }
+        }
+        
+        return s.toString();
     }
     
 }

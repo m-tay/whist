@@ -8,20 +8,34 @@
 
 package whist;
 
+import whist.Card.Suit;
+
 public interface Player {
     
+    // adds card to players hand
+    void dealCard(Card c);
+    
+    // sets strategy of player
+    void setStrategy(Strategy s);
+    
+    // determines which of players cards to play
+    Card playCard(Trick t);
+    
+    void viewTrick(Trick t);
+    
+    // sets the trumps value so the player knows what the trump suit is
+    void setTrumps(Suit s);
+    
+    int getID();
+    
+    // gets the number of won tricks
+    int getTricksWon();    
+        
     // methods to add/remove cards
-    public void addCard(Card c);
     public void removeCard(Card c);
     
     // methods to add/remove the current hand
     public void addHand(Hand h);
     public void removeHand(Hand h);
-    
-    // method to select the next card to be played
-    public Card playCard();
-    
-    // TODO: strategy selection method?
-    
     
 }
