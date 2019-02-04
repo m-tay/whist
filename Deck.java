@@ -7,6 +7,8 @@
 
 package whist;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,6 +16,8 @@ import java.io.Serializable;
 import java.util.ArrayList; 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import whist.Card.*;
 
 public class Deck implements Serializable, Iterable<Card> {
@@ -22,14 +26,41 @@ public class Deck implements Serializable, Iterable<Card> {
     
     // custom serialization methods - makes the Deck class serialized using
     // the SpadeIterator     
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        
-    }
     
     private void readObject(ObjectInputStream in) throws IOException, 
                                                          ClassNotFoundException{
+ 
+        in.defaultReadObject();  
         
+        // create the input collection
+        ArrayList<Card> inList = new ArrayList();
+        
+        // read object in and save in collection
+        inList = (ArrayList<Card>) in.readObject();
+        
+        // set deck to deserialized object
+        deck = inList;
     }
+    
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        // default serialization
+        out.defaultWriteObject();
+        
+        // create the output collection
+        ArrayList<Card> outList = new ArrayList();
+        
+        // create the spadeiterator to populate outList
+        SpadeIterator it = new SpadeIterator();
+        
+        // loop through deck, adding cards to 
+        it.forEachRemaining(e -> outList.add(e));
+        
+        // write object out
+        out.writeObject(outList);
+    }
+     
+    
+
     
     // ArrayList inited with fixed size but not final - cards can be removed
     private ArrayList<Card> deck = new ArrayList(52);
@@ -40,66 +71,19 @@ public class Deck implements Serializable, Iterable<Card> {
     }
     
     // returns number of cards left in deck
-    // TODO: actually use this method???
     public int size() {
         return deck.size();
     }
     
-    // TODO: run this with just 2 for loops??
     public final void newDeck() {
-        // add all 52 possible cards
-        deck.add(new Card(Card.Rank.TWO,    Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.THREE,  Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.FOUR,   Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.FIVE,   Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.SIX,    Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.SEVEN,  Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.EIGHT,  Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.NINE,   Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.TEN,    Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.JACK,   Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.QUEEN,  Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.KING,   Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.ACE,    Card.Suit.CLUBS));
-        deck.add(new Card(Card.Rank.TWO,    Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.THREE,  Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.FOUR,   Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.FIVE,   Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.SIX,    Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.SEVEN,  Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.EIGHT,  Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.NINE,   Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.TEN,    Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.JACK,   Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.QUEEN,  Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.KING,   Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.ACE,    Card.Suit.DIAMONDS));
-        deck.add(new Card(Card.Rank.TWO,    Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.THREE,  Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.FOUR,   Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.FIVE,   Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.SIX,    Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.SEVEN,  Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.EIGHT,  Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.NINE,   Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.TEN,    Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.JACK,   Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.QUEEN,  Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.KING,   Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.ACE,    Card.Suit.HEARTS));
-        deck.add(new Card(Card.Rank.TWO,    Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.THREE,  Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.FOUR,   Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.FIVE,   Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.SIX,    Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.SEVEN,  Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.EIGHT,  Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.NINE,   Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.TEN,    Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.JACK,   Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.QUEEN,  Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.KING,   Card.Suit.SPADES));
-        deck.add(new Card(Card.Rank.ACE,    Card.Suit.SPADES));
+        // add all 52 possible cards - loop through suits
+        for(Suit s : Suit.values()) {
+            
+            // loop through all values
+            for(Rank r : Rank.values()) {
+                deck.add(new Card(r, s));
+            }
+        }
         
         // shuffle the deck
         Collections.shuffle(deck); 
@@ -222,6 +206,52 @@ public class Deck implements Serializable, Iterable<Card> {
         Iterator<Card> si = myDeck.spadeIterator();
         while(si.hasNext()) {
             System.out.println("Next spade is " + si.next());
+        }
+        
+        // test serialization
+        try {
+            // set up output streams
+            FileOutputStream fileOut = new FileOutputStream("deck.ser");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            
+            // serialize through Serializable interface
+            out.writeObject(myDeck);    
+            
+            // tidy up
+            out.close();
+            fileOut.close();
+        }   
+        catch (IOException i){
+            System.out.println("IOException in serialization: " + i);
+        }
+        
+        // test deserialization
+        Deck deserDeck = null; // deck object to hold deserialized deck        
+        
+        try {
+            // set up input streams
+            FileInputStream fileIn = new FileInputStream("deck.ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            
+            // deserialize
+            deserDeck = (Deck) in.readObject();
+            
+            // tidy up
+            in.close();
+            fileIn.close();
+            
+        }
+        catch (IOException i) {
+            System.out.println("IOException in serialization: " + i);
+            
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Class not found error ");
+        }
+        
+        // print out deserDeck to test it deserialized properly
+        System.out.println("\nDeserialized deck is: ");
+        for(Card c : deserDeck) {
+            System.out.println(c);
         }
         
     }

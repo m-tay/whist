@@ -97,7 +97,7 @@ public class BasicStrategy implements Strategy {
 
             // setup to check logic for part 2:
             // hand is already sorted, so iterator's next will return min card
-            Iterator it = hand.sortedOrderIterator();
+            Iterator<Card> it = hand.sortedOrderIterator();
                       
             // follow suit if possible, so get partner's suit
             Card partnersCard = currentTrick.getCard(partnerNumber);
@@ -111,7 +111,7 @@ public class BasicStrategy implements Strategy {
                 // can use while loop because iterator is guaranteed to have
                 // the suit we are looking for
                 while(cardNotFound) {
-                    Card nextCard = (Card)it.next(); // get the next card
+                    Card nextCard = it.next(); // get the next card
                     
                     // if the next card's suit matches partners suit card
                     if(nextCard.getSuit() == partnersCard.getSuit()) {
@@ -138,8 +138,7 @@ public class BasicStrategy implements Strategy {
                     while(cardNotFound) {
                         // loop through iterator
                         while(it.hasNext()) {
-                            // TODO remove this casting
-                            Card nextCard = (Card)it.next();
+                            Card nextCard = it.next();
 
                             // loop through non-trump suits, if a non-trump card
                             // is found, then select the next 
@@ -202,8 +201,7 @@ public class BasicStrategy implements Strategy {
             }
         }
         
-    return chosenCard;
-    
+    return chosenCard;    
     }
 
     @Override

@@ -268,7 +268,6 @@ public class BasicWhist {
             while(c != 'y' && c!= 'n') {
                 Scanner reader = new Scanner(System.in);
                 c = reader.next().charAt(0);
-                System.out.println("c = " + c);
                 
                 if(c == 'n') 
                     playGame = false;                
@@ -375,11 +374,11 @@ public class BasicWhist {
 //        whist.playMatch();
 //        
 //        // test basicGame()
-//        basicGame();
-
-            // test humanGame()
-            humanGame();
-        
+        basicGame();
+//
+//            // test humanGame()
+//            humanGame();
+//        
                 
     }
     

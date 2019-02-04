@@ -215,6 +215,12 @@ public class Card implements Serializable, Comparable<Card> {
         return equality;        
     }
     
+    // todo: implement this
+    public static void selectTest() {
+        
+    }
+    
+    
     // main contains all test code
     public static void main(String[] args) {
         

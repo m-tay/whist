@@ -232,12 +232,17 @@ public class Hand implements Serializable, Iterable {
     }
     
     // removes card at a given position, returns card at that position
-    // TODO handle incorrect positions?
-    public Card remove(int i) {
-        Card removedCard = hand.get(i);
-        hand.remove(removedCard);
-        decreaseSuitCount(removedCard);
-        return removedCard;
+    public Card remove(int i) throws NoValidCardsFoundException {
+        
+        // check if a valid card exists at given position
+        if(hand.size() < i) 
+            throw new NoValidCardsFoundException("No card exists at this position.");
+        
+        // if card exists...
+        Card removedCard = hand.get(i); // get card from hand
+        hand.remove(removedCard);       // remove card from hand
+        decreaseSuitCount(removedCard); // adjust suit count for hand
+        return removedCard;             // return the removed card
     }
     
     @Override
@@ -285,8 +290,7 @@ public class Hand implements Serializable, Iterable {
         }
     }
     
-    
-    public Iterator sortedOrderIterator() {
+    public Iterator<Card> sortedOrderIterator() {
         return new OrderIterator();
     }
     
