@@ -30,16 +30,17 @@ public class HumanStrategy implements Strategy {
         // sort cards to make them easier to read
         h.sortByRank();
                 
+        // output useful information to screen 
         System.out.println("-------------------------------------------------");
-        System.out.println("Human player " + playerNumber + " - it's your turn");
+        System.out.println("Human player " + playerNumber +" - it's your turn");
         System.out.println("-------------------------------------------------");
         System.out.println("Trump suit is " + t.getTrumpSuit());
         System.out.println("Current trick is:");
         System.out.println(t);
         System.out.println("-------------------------------------------------");
         System.out.println(h);
-        index = getInput(h);
-        chosenCard = h.remove(index);
+        index = getInput(h);            // get user input (validates)
+        chosenCard = h.remove(index);   // remove the chosen card
         
         return chosenCard;
     }

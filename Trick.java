@@ -13,6 +13,8 @@ import whist.Card.*;
 public class Trick {
 
     // use three arraylists to hold all the data for the tricks
+    // all three arraylists are updated at the same time, so the position in
+    // all of them is consistent
     private ArrayList<Card> cards = new ArrayList<>();      // holds cards
     private ArrayList<Integer> players = new ArrayList<>(); // holds player numbers
     private ArrayList<Boolean> lead = new ArrayList<>();    // holds if card is lead card
@@ -20,6 +22,7 @@ public class Trick {
     // stores the trump suit of the trick
     private static Suit trumps;    
     
+    // constructor
     public Trick(Suit trump) {
         trumps = trump;
     }
@@ -29,6 +32,7 @@ public class Trick {
         return cards.size();
     }
     
+    // getter methods
     public ArrayList<Card> getCards() {
         return cards;
     }
@@ -130,12 +134,13 @@ public class Trick {
     // returns a card corresponding to the player that played it
     public Card getCard(int playerNum) {
         int index = -1;
-        
+
         for(int i = 0; i < players.size(); i++) {
-            if(playerNum == players.get(i)) 
+            if(playerNum == players.get(i)) { 
                 index = i;
+            }
         }
-      
+        
         return cards.get(index);        
     }
     
@@ -196,7 +201,8 @@ public class Trick {
         System.out.println(t.getLeadSuit());
         
         // test numCardsInTrick
-        System.out.println("Number of cards in trick is " + t.getNumOfCardsInTrick());
+        System.out.println("Number of cards in trick is " + 
+                                                    t.getNumOfCardsInTrick());
         
         // test toString()
         System.out.println("Testing toString(): ");

@@ -157,7 +157,8 @@ public class BasicWhist {
     }
     
     // runs a match (until either team has 7+ points)
-    public void playMatch() {
+    // returns an int of the winning team (1 or 2) 
+    public int playMatch() {
         // ensure team's point are set to 0
         team1points = 0;
         team2points = 0;
@@ -168,12 +169,13 @@ public class BasicWhist {
         if(team1points>=WINNING_POINTS) {
             System.out.println("Winning team is Team 1 with " + team1points);
             System.out.println("-------------------------------------------------");
+            return 1;
         }
         else {
             System.out.println("Winning team is Team 2 with " + team2points);
             System.out.println("-------------------------------------------------");
+            return 2;
         }
-        
     }
   
     // displays the current game state
@@ -312,25 +314,41 @@ public class BasicWhist {
         System.exit(0); // quit game        
     }
     
-    
     public static void advancedGame() {
         boolean playGame = true;
         
         // loop that runs as long as play another option set to y
         while(playGame) {
-            Player[] playerList = { new BasicPlayer(1),
-                                    new BasicPlayer(2),
-                                    new BasicPlayer(3),
-                                    new BasicPlayer(4),
-            };
-
-            // set players 1 and 3 to use advanced strategy
-            playerList[0].setStrategy(new AdvancedStrategy(1));
-            playerList[2].setStrategy(new AdvancedStrategy(3));
+            int team1wins = 0;
+            int team2wins = 0;
             
-            BasicWhist whist = new BasicWhist(playerList);
+            // run game multiple times, output results
+            int TIMES_TO_RUN = 10;
+            for(int i = 0; i < TIMES_TO_RUN; i++) {
+            
+                Player[] playerList = { new BasicPlayer(1),
+                                        new BasicPlayer(2),
+                                        new BasicPlayer(3),
+                                        new BasicPlayer(4),
+                };
 
-            whist.playMatch();
+                // set players 1 and 3 to use advanced strategy
+                playerList[1].setStrategy(new AdvancedStrategy(2));
+                playerList[3].setStrategy(new AdvancedStrategy(4));
+
+                BasicWhist whist = new BasicWhist(playerList);
+                        
+                int result = whist.playMatch();
+                
+                if(result == 1)
+                    team1wins++;
+                if(result == 2)
+                    team2wins++;
+            }
+            
+            System.out.println("Team 1 wins: " + team1wins);
+            System.out.println("Team 2 wins: " + team2wins);
+            
  
             System.out.println("\nPlay another? (y/n)");
             
@@ -347,10 +365,6 @@ public class BasicWhist {
                 
         System.exit(0); // quit game        
     }
-
-    
-    
-    
     
     // test harness
     public static void main(String args[]) {
@@ -418,7 +432,7 @@ public class BasicWhist {
 //        // test humanGame()
 //        humanGame();
 //        
-        // test advancedGame()
+        // test advancedGame() multiple times, output results for comparison
         advancedGame();
                 
     }

@@ -11,22 +11,29 @@ import java.util.*;
 import whist.Card.Suit;
 
 public class AdvancedStrategy implements Strategy {
+    private int playerNumber;       // holds the current player number
+    private int partnerNumber;      // holds the players partners number
+    private int oppoNumber[] = new int[2];// stores the opponents of this player
     
-    // holds the current player number
-    private int playerNumber;
-    private int partnerNumber;
-    private int oppoNumber[] = new int[2];
-    
-    // holds game state information, passed via updateData()
-    // Hand objects to store the played cards of each player
-    // position in array matches internal player IDs (0 to 3)
-    private ArrayList<Hand> playerHands = new ArrayList();
+    // game state variables, updated via updateData()
+    // stores remaining cards in game in a Deck object
+    private Deck cardsRemaining = new Deck();
     
     // arraylist of hashmaps, which holds of each player (position 0 to 3) has
     // any of the suits left in their hand
     private ArrayList<HashMap<Card.Suit, Boolean>> playerHasSuit = 
-                                                                new ArrayList();
+                                                               new ArrayList();
     
+    // counters for how many of each suit has been played (by players other
+    // than current player
+    private int clubsPlayed;
+    private int heartsPlayed;
+    private int diamondsPlayed;
+    private int spadesPlayed;
+    
+    // maintain a copy of the player's hand in strategy for evaluating whether
+    // all cards of a suit have been played or not
+    private Hand playersHand = new Hand();
     
     // constructor
     public AdvancedStrategy(int playerNum) {
@@ -68,12 +75,8 @@ public class AdvancedStrategy implements Strategy {
                     break;
         }   
         
-        // initialise the playerHands list to have 4 hands (0 to 3) for all
-        // players in the game
-        playerHands.add(new Hand());
-        playerHands.add(new Hand());
-        playerHands.add(new Hand());
-        playerHands.add(new Hand());
+        // initialise Deck so it is full of cards
+        cardsRemaining.newDeck();
         
         // initialise the playerHasSuit arraylist
         // create hashmap of all suits being true
@@ -92,7 +95,13 @@ public class AdvancedStrategy implements Strategy {
             playerHasSuit.get(i).put(Suit.DIAMONDS, Boolean.TRUE);
             playerHasSuit.get(i).put(Suit.HEARTS,   Boolean.TRUE);
             playerHasSuit.get(i).put(Suit.SPADES,   Boolean.TRUE);
-        }        
+        }  
+        
+        // reset the counters for total of each suit played
+        clubsPlayed     = 0;
+        heartsPlayed    = 0;
+        diamondsPlayed  = 0;
+        spadesPlayed    = 0;
     }
     
     // given a suit, return an arraylist of all the suits that are not that suit
@@ -123,14 +132,40 @@ public class AdvancedStrategy implements Strategy {
         return false;
     }
     
+    // returns the shortest suit in a players hand
+    public Suit getShortestSuit(Hand playersHand) {
+        Suit shortest = Suit.CLUBS;
+        int count = 13;
+        
+        if(playersHand.countSuit(Suit.CLUBS) < count && playersHand.countSuit(Suit.CLUBS) > 0)
+            
+            shortest = Suit.CLUBS;
+        if(playersHand.countSuit(Suit.DIAMONDS) < count && playersHand.countSuit(Suit.CLUBS) > 0) 
+            shortest = Suit.DIAMONDS;
+        if(playersHand.countSuit(Suit.SPADES) < count && playersHand.countSuit(Suit.CLUBS) > 0) 
+            shortest = Suit.SPADES;
+        if(playersHand.countSuit(Suit.HEARTS) < count && playersHand.countSuit(Suit.CLUBS) > 0) 
+            shortest = Suit.HEARTS;
+        
+        return shortest;
+    }
+    
     @Override
     public Card chooseCard(Hand hand, Trick currentTrick) {
+        // update strategy's copy of hand
+        playersHand = hand;
         hand.sortByRank(); // ensure hand is sorted
         Card chosenCard = new Card(); // holds the chosen card to return
                 
         // case 1: first player
         // detect if first player (currentTrick returns -1)
         if(currentTrick.findWinner() == -1) {
+            
+            // if our shortest suit is < 3, try to get rid of it quickly
+            Suit shortestSuit = getShortestSuit(playersHand);
+            if(playersHand.countSuit(shortestSuit) < 3 && playersHand.countSuit(shortestSuit) > 0) {
+                return hand.getMin(shortestSuit);
+            }
             
             // check if we think opponents have trump cards and then play
             // highest trump if so
@@ -139,13 +174,9 @@ public class AdvancedStrategy implements Strategy {
                 if(hand.hasSuit(currentTrick.getTrumpSuit())) {
                     
                     // play highest trumps
-                    System.out.println("P" + playerNumber + " thinks opponents have trumps so is playing them");
                     return hand.getMax(currentTrick.getTrumpSuit()); 
-
                 }
-                
             }
-            
             
             // check if partner can trump
             if(playerHasSuit.get(partnerNumber - 1).get(currentTrick.getTrumpSuit())) {
@@ -176,7 +207,6 @@ public class AdvancedStrategy implements Strategy {
                 // if any minCards are present, return it
                 if(minCards.size() > 0) {                                 
                     chosenCard = minCards.getMin();
-                    System.out.println("P" + playerNumber+ " I think my partner is out of a suit so I'll play +" + chosenCard);
                 }
                 // else, return max
                 else {
@@ -324,21 +354,27 @@ public class AdvancedStrategy implements Strategy {
     @Override
     // updates the advanced strategy's model of the game
     public void updateData(Trick completedTrick) {
-
+        
+        // make sure players cards are removed from the remaining cards
+        Iterator it = playersHand.sortedOrderIterator();
+        while(it.hasNext()) {
+            cardsRemaining.remove((Card)it.next());
+        }
+        
+        // update strategys copy of hand with completed tricks
+        // subtract 1 from playerNumber because getCard expects 0 - 3 type
+        playersHand.remove(completedTrick.getCard(playerNumber - 1));
+        
         // loop through completed trick 
         for(int i = 0; i < completedTrick.getNumOfCardsInTrick(); i++) {
             
-            // save each card player has played
-            // get player number from i'th position in trick
-            int player = completedTrick.getPlayerAt(i);
-            
-            // add card from completed trick in position of player number
-            playerHands.get(player).add(completedTrick.getCardAt(i));
+            // remove played card from cardsRemaining
+            cardsRemaining.remove(completedTrick.getCardAt(i));
             
             // check if any players could not follow lead suit - this means
             // they do not have those suits
             Suit leadSuit = completedTrick.getLeadSuit(); // get lead suit
-            
+
             // loop through all non-lead cards (start loop from 1, not 0)
             for(int j = 1; j < completedTrick.getNumOfCardsInTrick(); j++) {
                 
@@ -350,12 +386,49 @@ public class AdvancedStrategy implements Strategy {
                     // update hashmap in arraylist of position of player (0-3)
                     // to set the suit to false
                     playerHasSuit.get(pNum).put(leadSuit, false);
-                    
-                    System.out.println("P" + playerNumber + ": player " + pNum + " is out of " + leadSuit);
                 }
             }
             
+            // update counters of suits played, to keep track of whether all
+            // cards of a suit played
+            switch(completedTrick.getCardAt(i).getSuit().toString()) {
+                case "HEARTS":
+                    heartsPlayed++;
+                    break;
+                case "SPADES":
+                    spadesPlayed++;
+                    break;
+                case "DIAMONDS":
+                    diamondsPlayed++;
+                    break;
+                case "CLUBS":
+                    clubsPlayed++;
+                    break;
+            }
+
+            // check if any of them are 13 (all cards of a suit played) then
+            // mark all players as being out of that suit
+            if(heartsPlayed == (13 - playersHand.countSuit(Suit.HEARTS))) {
+                playerHasSuit.forEach((playerHasSuitE) -> {
+                    playerHasSuitE.put(Suit.HEARTS, Boolean.FALSE);
+                });
+            }
+            if(diamondsPlayed == (13 - playersHand.countSuit(Suit.DIAMONDS))) {
+                playerHasSuit.forEach((playerHasSuitE) -> {
+                    playerHasSuitE.put(Suit.DIAMONDS, Boolean.FALSE);
+                });
+            }
+            if(spadesPlayed == (13 - playersHand.countSuit(Suit.SPADES))) {
+                playerHasSuit.forEach((playerHasSuitE) -> {
+                    playerHasSuitE.put(Suit.SPADES, Boolean.FALSE);
+                });
+            }
+            if(clubsPlayed == (13 - playersHand.countSuit(Suit.CLUBS))) {
+                playerHasSuit.forEach((playerHasSuitE) -> {
+                    playerHasSuitE.put(Suit.CLUBS, Boolean.FALSE);
+                });
             
+            }
         }
     }
     
@@ -429,7 +502,7 @@ public class AdvancedStrategy implements Strategy {
         
         // run updateData() and print out the playerHands that's been updated
         strat.updateData(testTrick2);
-        System.out.println(strat.playerHands);
+        System.out.println(strat.cardsRemaining);
         
     }
     

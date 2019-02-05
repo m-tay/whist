@@ -31,7 +31,6 @@ public class BasicPlayer implements Player {
         playerID = id;
     }
     
-
     @Override
     // gets the number of won tricks
     public int getTricksWon() {

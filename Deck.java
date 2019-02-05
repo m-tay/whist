@@ -22,7 +22,7 @@ public class Deck implements Serializable, Iterable<Card> {
     
     private static final long serialVersionUID = 49L; 
     
-    // custom serialization methods - makes the Deck class serialized using
+    // custom serialization methods - makes the Deck class serializable using
     // the SpadeIterator         
     private void readObject(ObjectInputStream in) throws IOException, 
                                                          ClassNotFoundException{
@@ -63,6 +63,15 @@ public class Deck implements Serializable, Iterable<Card> {
     // default constructor - creates shuffled deck
     public Deck() {
        newDeck();   // call initialiser method
+    }
+    
+    // removes a card from the Deck
+    public void remove(Card c) {
+        // check if element is contained
+        if(deck.contains(c))       
+            deck.remove(c);
+        // todo throw exception?
+        
     }
     
     // returns number of cards left in deck
