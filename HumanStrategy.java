@@ -46,8 +46,7 @@ public class HumanStrategy implements Strategy {
 
     @Override
     public void updateData(Trick completedTrick) {
-        String msg = "Not supposed by HumanStrategy.";
-        throw new UnsupportedOperationException(msg);
+        // no state to update in humanStrategy
     }
     
     // asks for a checks user input is valid for given hand
@@ -74,6 +73,11 @@ public class HumanStrategy implements Strategy {
         return input;        
     }
         
+    
+    @Override    
+    public void resetState() {
+        // no state is stored to reset
+    }
         
     
     // test harness

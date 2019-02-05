@@ -7,7 +7,6 @@
 
 package whist;
 
-import java.util.ArrayList;
 import whist.Card.Suit;
 
 public class BasicPlayer implements Player {
@@ -26,19 +25,24 @@ public class BasicPlayer implements Player {
     
     // stores the current trump suit
     private Suit trumpSuit;
-    
-    // holds all completed tricks sent by the game
-    private ArrayList<Trick> completedTricks = new ArrayList();
-    
+
     // constructor
     public BasicPlayer(int id) {
         playerID = id;
     }
     
+
+    @Override
     // gets the number of won tricks
     public int getTricksWon() {
         return tricksWon;
     }
+    
+    @Override
+    // resets the number of tricks won
+    public void resetTricksWon() {
+        tricksWon = 0;
+    }    
     
     @Override
     // removes cards from hand
@@ -82,14 +86,12 @@ public class BasicPlayer implements Player {
     @Override
     // stores a completed trick given by the game
     public void viewTrick(Trick t) {
-        completedTricks.add(t);
+        // send completed tricks to the strategy
+        strat.updateData(t);
         
         // check if this player has won the trick
         if(t.findWinner() == (playerID - 1))
             tricksWon++;
-        
-//        System.out.println("trickwin = " + t.findWinner());
-//        System.out.println("player " + playerID + "has got trixwon " + tricksWon);
     }
 
     @Override
@@ -104,6 +106,13 @@ public class BasicPlayer implements Player {
         return playerID;
     }
     
+
+    @Override
+    // resets a player's strategy's state
+    public void resetState() {
+        strat.resetState();
+    }
+    
     @Override
     // returns details about the current player's state
     public String toString() {
@@ -115,4 +124,6 @@ public class BasicPlayer implements Player {
         
         return s.toString();
     }
+
+
 }

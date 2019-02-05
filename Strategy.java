@@ -15,4 +15,8 @@ public interface Strategy {
     
     // method to update the strategy's data model of the game
     public void updateData(Trick completedTrick);
+    
+    // method to tell the strategy to reset it's state (only implemented in
+    // advanced strategy)
+    public void resetState();
 }

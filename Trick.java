@@ -8,7 +8,6 @@
 package whist;
 
 import java.util.ArrayList; 
-import java.util.Comparator;
 import whist.Card.*;
 
 public class Trick {
@@ -40,6 +39,33 @@ public class Trick {
     
     public ArrayList<Boolean> getLeadCard() {
         return lead;
+    }
+    
+    // gets the player number (0 to 3) at a position in the trick
+    public int getPlayerAt(int i) {
+        // check for exceptions
+        if(i < 0 || i > players.size())
+            throw new ArrayIndexOutOfBoundsException("No such player exists");
+        
+        return players.get(i);
+    }
+    
+    // gets the card number (0 to 3) at a position in the trick
+    public Card getCardAt(int i) {
+        // check for exceptions
+        if(i < 0 || i > cards.size())
+            throw new ArrayIndexOutOfBoundsException("No such card exists");
+        
+        return cards.get(i);        
+    }
+    
+    // gets the lead indicator (0 to 3) at a position in the trick
+    public boolean getLeadAt(int i) {
+        // check for exceptions
+        if(i < 0 || i > lead.size())
+            throw new ArrayIndexOutOfBoundsException("No such element exists");
+        
+        return lead.get(i); 
     }
     
     public Suit getLeadSuit() {
@@ -136,6 +162,46 @@ public class Trick {
         }
         
         return s.toString();
+    }
+    
+    // test harness
+    public static void main(String[] args) {
+        
+        Trick t = new Trick(Suit.HEARTS); // create test trick
+        
+        // add test elements to trick
+        t.setCard(new Card(Rank.SIX,   Suit.HEARTS),  0);
+        t.setCard(new Card(Rank.SEVEN, Suit.HEARTS),  1);
+        t.setCard(new Card(Rank.FIVE,  Suit.HEARTS),  2);
+        t.setCard(new Card(Rank.EIGHT, Suit.HEARTS),  3);
+
+        // get getCard() 
+        System.out.print("getCard(2) test: ");
+        System.out.println(t.getCard(2));
+        
+        // test getCards
+        System.out.print("getCards() test: ");
+        System.out.println(t.getCards());
+        
+        // test getPlayers
+        System.out.print("getPlayers() test: ");
+        System.out.println(t.getPlayers());
+        
+        // test getLead
+        System.out.print("getLead() test: ");
+        System.out.println(t.getLeadCard());
+        
+        // test getLeadSuit
+        System.out.print("getLeadSuit() test: ");
+        System.out.println(t.getLeadSuit());
+        
+        // test numCardsInTrick
+        System.out.println("Number of cards in trick is " + t.getNumOfCardsInTrick());
+        
+        // test toString()
+        System.out.println("Testing toString(): ");
+        System.out.println(t);
+        
     }
     
 }

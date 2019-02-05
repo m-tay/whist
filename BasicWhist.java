@@ -107,9 +107,10 @@ public class BasicWhist {
         // determine trump suit for hand
         trumpSuit = Suit.getRandom();
         
-        // set trump suit for each player
+        // for each player
         for (Player player : players) {
-            player.setTrumps(trumpSuit);
+            player.resetState();
+            player.setTrumps(trumpSuit);    // set trump suit for each player
         }
         
         // loop for playing each hand
@@ -127,7 +128,6 @@ public class BasicWhist {
             // update game state
             handNumber++;
             setNextPlayer();
-            trumpSuit = Suit.getRandom();
         }
         
         // determines winner of game and updates points
@@ -142,6 +142,11 @@ public class BasicWhist {
         else {
             team2points += team2 - 6;
             winningTeam = 2;
+        }
+        
+        // reset player's points for round
+        for (Player player : players) {
+            player.resetTricksWon();
         }
         
         printRoundSummary(winningTeam);
@@ -170,10 +175,7 @@ public class BasicWhist {
         }
         
     }
-    
-    
-    
-    
+  
     // displays the current game state
     public void printGameState() {
         // flags to hold ends of trick/round
@@ -217,7 +219,7 @@ public class BasicWhist {
         System.out.println("> Team 1: " + team1points);
         System.out.println("> Team 2: " + team2points);
         System.out.println("-------------------------------------------------");
-    }
+    }         
     
     // logic to print the current trick
     public void printCurrentTrick() {
@@ -311,6 +313,43 @@ public class BasicWhist {
     }
     
     
+    public static void advancedGame() {
+        boolean playGame = true;
+        
+        // loop that runs as long as play another option set to y
+        while(playGame) {
+            Player[] playerList = { new BasicPlayer(1),
+                                    new BasicPlayer(2),
+                                    new BasicPlayer(3),
+                                    new BasicPlayer(4),
+            };
+
+            // set players 1 and 3 to use advanced strategy
+            playerList[0].setStrategy(new AdvancedStrategy(1));
+            playerList[2].setStrategy(new AdvancedStrategy(3));
+            
+            BasicWhist whist = new BasicWhist(playerList);
+
+            whist.playMatch();
+ 
+            System.out.println("\nPlay another? (y/n)");
+            
+            // get and process user input
+            char c = 'a';
+            while(c != 'y' && c!= 'n') {
+                Scanner reader = new Scanner(System.in);
+                c = reader.next().charAt(0);
+                
+                if(c == 'n') 
+                    playGame = false;                
+            }
+        }
+                
+        System.exit(0); // quit game        
+    }
+
+    
+    
     
     
     // test harness
@@ -374,11 +413,13 @@ public class BasicWhist {
 //        whist.playMatch();
 //        
 //        // test basicGame()
-        basicGame();
+//        basicGame();
 //
-//            // test humanGame()
-//            humanGame();
+//        // test humanGame()
+//        humanGame();
 //        
+        // test advancedGame()
+        advancedGame();
                 
     }
     

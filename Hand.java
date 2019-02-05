@@ -317,6 +317,7 @@ public class Hand implements Serializable, Iterable {
     }
     
     // returns the highest card of a given suit
+    // returns null if no cards found
     public Card getMax(Suit suit) throws NoValidCardsFoundException {
         // sort into descending order
         this.sortByDescending();
@@ -334,9 +335,9 @@ public class Hand implements Serializable, Iterable {
                 return nextCard;
         }
         
-        // if no cards of given suit are found, throw exception
-        throw new NoValidCardsFoundException("No cards of " + suit + " found");
-        
+        // if no cards found, just return null
+        return null;
+
     }
     
     // gets the minimum card by rank of any suit
@@ -352,8 +353,30 @@ public class Hand implements Serializable, Iterable {
         return hand.get(0);        
     }
     
+    // returns the lowest card of a given suit
+    public Card getMin(Suit suit) throws NoValidCardsFoundException {
+        // sort into ascending order
+        this.sort();
+        
+        // create iterator
+        Iterator it = this.sortedOrderIterator();
+        
+        // iterate through cards
+        while(it.hasNext()) {
+            Card nextCard = (Card) it.next();
+            
+            // if next card matches given suit, it is highest of that suit in
+            // the hand, so return it
+            if(nextCard.getSuit() == suit)
+                return nextCard;
+        }
+        
+        // if no cards of given suit are found, throw exception
+        throw new NoValidCardsFoundException("No cards of " + suit + " found");
+    }
     
-    // sorts hand into ascending order
+    // sorts hand into ascending order 
+    // works because Card has got compareTo() implemented
     public void sort() {
         Collections.sort(hand);
     }
@@ -362,7 +385,6 @@ public class Hand implements Serializable, Iterable {
     public void sortByRank() {
         Collections.sort(hand, new CompareRank());
     }
-    
     
     // sorts hand into descending order
     public void sortByDescending() {
@@ -589,6 +611,10 @@ public class Hand implements Serializable, Iterable {
         // testing getMax() method
         System.out.println(testingHand);
         System.out.println("testingHand getMax() is " + testingHand.getMax());
+        
+        // testing getMax(suit) and getMin(suit)
+        System.out.println("\nTest getMax(suit) and getMin(suit) methods");
+        System.out.println(testingHand);
         
    }
 

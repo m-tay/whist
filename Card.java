@@ -215,9 +215,44 @@ public class Card implements Serializable, Comparable<Card> {
         return equality;        
     }
     
-    // todo: implement this
-    public static void selectTest() {
+    public static void selectTest(List<Card> cards, Comparator comp, Card c) {
+
+        // create lambda function to compare two cards
+        Comparator<Card> cardCompare = (Card a, Card b) -> {
+            return a.compareTo(b);
+        };
         
+        // use lambda in chooseGreater() calls
+        chooseGreater(cards, cardCompare, c);
+        
+    }
+    
+    public static class CompareDescending implements Comparator<Card> {
+
+        @Override
+        public int compare(Card a, Card b) {
+
+            // if not the same rank, return comparison
+            if(a.getRank() != b.getRank()) {
+                // sorts by rank in descending order
+                return b.getRank().getValue() - a.getRank().getValue();
+            }
+            // if they are the same rank, sort by suit (in same sort order)
+            else {
+                return a.getSuit().getValue() - b.getSuit().getValue();
+            }
+
+        }
+    }
+    
+    public static class CompareRank implements Comparator<Card> {
+
+        @Override
+        public int compare(Card a, Card b) {
+            // sorts by rank in ascending order
+            return a.getRank().getValue() - b.getRank().getValue();
+        }
+
     }
     
     

@@ -3,45 +3,96 @@
 // 
 // Author:      Matthew Taylor
 // 
-// Description: Implements the basic strategy for AI players
+// Description: Implements the advanced strategy for AI players
 
 package whist;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 import whist.Card.Suit;
 
-public class BasicStrategy implements Strategy {
+public class AdvancedStrategy implements Strategy {
     
     // holds the current player number
-    private final int playerNumber;
-    private final int partnerNumber;
+    private int playerNumber;
+    private int partnerNumber;
+    private int oppoNumber[] = new int[2];
+    
+    // holds game state information, passed via updateData()
+    // Hand objects to store the played cards of each player
+    // position in array matches internal player IDs (0 to 3)
+    private ArrayList<Hand> playerHands = new ArrayList();
+    
+    // arraylist of hashmaps, which holds of each player (position 0 to 3) has
+    // any of the suits left in their hand
+    private ArrayList<HashMap<Card.Suit, Boolean>> playerHasSuit = 
+                                                                new ArrayList();
+    
     
     // constructor
-    public BasicStrategy(int playerNum) {
-        playerNumber = playerNum; // get the player number
+    public AdvancedStrategy(int playerNum) {
+        // constructor just calls reset function, so we can easily reset the
+        // object to it's starting state outside of constructor
+        reset(playerNum);
+    }
+    
+    // sets strategy's initial state (done outside constructor so it can be
+    // reset easily each round)
+    private void reset(int playerNum) {
+                playerNumber = playerNum; // get the player number
         
         // set the partner number
         switch(playerNumber) {
                 case 1:
                     partnerNumber = 3;
+                    oppoNumber[0] = 4;
+                    oppoNumber[1] = 2;                    
                     break;
                 case 2:
                     partnerNumber = 4;
+                    oppoNumber[0] = 1;
+                    oppoNumber[1] = 3;      
                     break;
                 case 3:
                     partnerNumber = 1;
+                    oppoNumber[0] = 2;
+                    oppoNumber[1] = 4;      
                     break;
                 case 4:
                     partnerNumber = 2;
+                    oppoNumber[0] = 1;
+                    oppoNumber[1] = 3;      
                     break;
                 default:
                     // unreachable
                     partnerNumber = -1;
                     break;
-        }                    
+        }   
+        
+        // initialise the playerHands list to have 4 hands (0 to 3) for all
+        // players in the game
+        playerHands.add(new Hand());
+        playerHands.add(new Hand());
+        playerHands.add(new Hand());
+        playerHands.add(new Hand());
+        
+        // initialise the playerHasSuit arraylist
+        // create hashmap of all suits being true
+        HashMap<Card.Suit, Boolean> map0 = new HashMap();   
+        HashMap<Card.Suit, Boolean> map1 = new HashMap(); 
+        HashMap<Card.Suit, Boolean> map2 = new HashMap(); 
+        HashMap<Card.Suit, Boolean> map3 = new HashMap(); 
+        playerHasSuit.add(map0);
+        playerHasSuit.add(map1);
+        playerHasSuit.add(map2);
+        playerHasSuit.add(map3);
+        
+        // populate playerHasSuit arraylist hashmaps with all trues
+        for(int i = 0; i < playerHasSuit.size(); i++) {
+            playerHasSuit.get(i).put(Suit.CLUBS,    Boolean.TRUE);
+            playerHasSuit.get(i).put(Suit.DIAMONDS, Boolean.TRUE);
+            playerHasSuit.get(i).put(Suit.HEARTS,   Boolean.TRUE);
+            playerHasSuit.get(i).put(Suit.SPADES,   Boolean.TRUE);
+        }        
     }
     
     // given a suit, return an arraylist of all the suits that are not that suit
@@ -59,6 +110,19 @@ public class BasicStrategy implements Strategy {
         return suitList;
     }
     
+    // tests whether an opponent has a suit
+    public boolean opponentsHaveSuit(Suit suit) {
+        // loop through opponent number array
+        for(int i = 0; i < oppoNumber.length; i++) {
+            // if opponent has that suit
+            if(playerHasSuit.get(oppoNumber[i] - 1).get(suit)) {
+                return true;
+            }            
+        }
+        
+        return false;
+    }
+    
     @Override
     public Card chooseCard(Hand hand, Trick currentTrick) {
         hand.sortByRank(); // ensure hand is sorted
@@ -67,27 +131,81 @@ public class BasicStrategy implements Strategy {
         // case 1: first player
         // detect if first player (currentTrick returns -1)
         if(currentTrick.findWinner() == -1) {
+            
+            // check if we think opponents have trump cards and then play
+            // highest trump if so
+            if(opponentsHaveSuit(currentTrick.getTrumpSuit())) {
+                // and this player has trump suit
+                if(hand.hasSuit(currentTrick.getTrumpSuit())) {
+                    
+                    // play highest trumps
+                    System.out.println("P" + playerNumber + " thinks opponents have trumps so is playing them");
+                    return hand.getMax(currentTrick.getTrumpSuit()); 
 
-            // get the max card, add to arraylist
-            ArrayList<Card> maxCardList = new ArrayList();
-            Card maxCard = hand.getMax();
-            maxCardList.add(maxCard);
-                        
-            // check if there's multiple highest cards 
-            Iterator it = hand.sortedOrderIterator();
-            while(it.hasNext()) {
-                Card nextCard = (Card)it.next();
-                if(nextCard != maxCard) {
-                    if(nextCard.getRank() == maxCard.getRank()) {
-                        maxCardList.add(nextCard);
-                    }
                 }
+                
             }
             
-            // randomly select one of the max cards                   
-            Random rand = new Random();
-            int max = maxCardList.size();
-            chosenCard = maxCardList.get(rand.nextInt(max));              
+            
+            // check if partner can trump
+            if(playerHasSuit.get(partnerNumber - 1).get(currentTrick.getTrumpSuit())) {
+                
+                // and check if partner is out of any non-trump suits
+                ArrayList<Suit> nonTrumpSuits;
+                nonTrumpSuits = getNonTrumpSuits(currentTrick.getTrumpSuit());
+                
+                // create hand to store smallest cards that partner does not 
+                // have in same suit - if we have multiple suits our partner
+                // does not have then we want to select the smallest
+                Hand minCards = new Hand();
+                
+                // loop through non trump suits
+                for(int i = 0; i < nonTrumpSuits.size(); i++) {
+                    
+                    // if partner does not have a non trump suit...
+                    if (!playerHasSuit.get(partnerNumber - 1).get(nonTrumpSuits.get(i))) {
+                        
+                        // and player does have a card of that suit
+                        if(hand.hasSuit(nonTrumpSuits.get(i))) {
+                            // add to temp hand
+                            minCards.add(hand.getMin(nonTrumpSuits.get(i)));    
+                        }
+                    }
+                }
+                
+                // if any minCards are present, return it
+                if(minCards.size() > 0) {                                 
+                    chosenCard = minCards.getMin();
+                    System.out.println("P" + playerNumber+ " I think my partner is out of a suit so I'll play +" + chosenCard);
+                }
+                // else, return max
+                else {
+                    return hand.getMax();
+                }
+            }
+            // otherwise just play highest card
+            else {
+                // get the max card, add to arraylist
+                ArrayList<Card> maxCardList = new ArrayList();
+                Card maxCard = hand.getMax();
+                maxCardList.add(maxCard);
+
+                // check if there's multiple highest cards 
+                Iterator it = hand.sortedOrderIterator();
+                while(it.hasNext()) {
+                    Card nextCard = (Card)it.next();
+                    if(nextCard != maxCard) {
+                        if(nextCard.getRank() == maxCard.getRank()) {
+                            maxCardList.add(nextCard);
+                        }
+                    }
+                }
+
+                // randomly select one of the max cards                   
+                Random rand = new Random();
+                int max = maxCardList.size();
+                chosenCard = maxCardList.get(rand.nextInt(max));              
+            }
        }
         
        // case 2: partner winning the trick
@@ -126,7 +244,9 @@ public class BasicStrategy implements Strategy {
                 // bool to detect if card hasnt been found
                 boolean cardNotFound = true;
                 int index = 0;
-               
+                
+                it = hand.sortedOrderIterator();
+                
                 // get an arraylist of non trump suits
                 ArrayList<Suit> nonTrumpSuits;
                 nonTrumpSuits = getNonTrumpSuits(currentTrick.getTrumpSuit());
@@ -155,7 +275,6 @@ public class BasicStrategy implements Strategy {
                         // increment index so if only trumps remain, we check
                         // all cards in hand then exit the while loop
                         index++;
-                        
                     }
                 }
                 // else no non-trump cards found, so have to play a trump
@@ -203,14 +322,47 @@ public class BasicStrategy implements Strategy {
     }
 
     @Override
-    // must override method, but basic strategy does not consider completed
-    // tricks or played cards
+    // updates the advanced strategy's model of the game
     public void updateData(Trick completedTrick) {
+
+        // loop through completed trick 
+        for(int i = 0; i < completedTrick.getNumOfCardsInTrick(); i++) {
+            
+            // save each card player has played
+            // get player number from i'th position in trick
+            int player = completedTrick.getPlayerAt(i);
+            
+            // add card from completed trick in position of player number
+            playerHands.get(player).add(completedTrick.getCardAt(i));
+            
+            // check if any players could not follow lead suit - this means
+            // they do not have those suits
+            Suit leadSuit = completedTrick.getLeadSuit(); // get lead suit
+            
+            // loop through all non-lead cards (start loop from 1, not 0)
+            for(int j = 1; j < completedTrick.getNumOfCardsInTrick(); j++) {
+                
+                // check if card does not match lead suit
+                if(completedTrick.getCardAt(i).getSuit() != leadSuit) {
+                    // if does not match lead suit, player must be out of them
+                    int pNum = completedTrick.getPlayerAt(i);
+                    
+                    // update hashmap in arraylist of position of player (0-3)
+                    // to set the suit to false
+                    playerHasSuit.get(pNum).put(leadSuit, false);
+                    
+                    System.out.println("P" + playerNumber + ": player " + pNum + " is out of " + leadSuit);
+                }
+            }
+            
+            
+        }
     }
-        
+    
     @Override    
+    // resets the state - used after a round is over
     public void resetState() {
-        // no state is stored to reset
+        this.reset(playerNumber);
     }
     
     // testing harnesses
@@ -228,7 +380,7 @@ public class BasicStrategy implements Strategy {
         Trick testTrick = new Trick(Card.Suit.DIAMONDS);
         
         // set up basic strategy object for testing
-        BasicStrategy strat = new BasicStrategy(1);
+        AdvancedStrategy strat = new AdvancedStrategy(1);
         
         // test case 1 of strategy
         Card chooseCardTest1 = strat.chooseCard(testHand, testTrick);
@@ -261,13 +413,23 @@ public class BasicStrategy implements Strategy {
         Card testCard5 = new Card(Card.Rank.FIVE, Card.Suit.DIAMONDS);
         Trick testTrick2 = new Trick(Card.Suit.CLUBS);
         
-        testTrick2.setCard(testCard4, 3);
-        testTrick2.setCard(testCard5, 4);
+        testTrick2.setCard(testCard4, 2);
+        testTrick2.setCard(testCard5, 3);
         
         Card chooseCardTest4 = strat.chooseCard(testHand, testTrick2);
         System.out.println("Choose card (Case 3) test: " + chooseCardTest4);
         
+        // test updateData() method
+        // start by completing the trick
+        Card testCard6 = new Card(Card.Rank.SEVEN, Card.Suit.DIAMONDS);
+        Card testCard7 = new Card(Card.Rank.NINE, Card.Suit.DIAMONDS);
         
+        testTrick2.setCard(testCard6, 0);
+        testTrick2.setCard(testCard7, 1);
+        
+        // run updateData() and print out the playerHands that's been updated
+        strat.updateData(testTrick2);
+        System.out.println(strat.playerHands);
         
     }
     

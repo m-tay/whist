@@ -16,8 +16,6 @@ import java.io.Serializable;
 import java.util.ArrayList; 
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import whist.Card.*;
 
 public class Deck implements Serializable, Iterable<Card> {
@@ -25,8 +23,7 @@ public class Deck implements Serializable, Iterable<Card> {
     private static final long serialVersionUID = 49L; 
     
     // custom serialization methods - makes the Deck class serialized using
-    // the SpadeIterator     
-    
+    // the SpadeIterator         
     private void readObject(ObjectInputStream in) throws IOException, 
                                                          ClassNotFoundException{
  
@@ -59,8 +56,6 @@ public class Deck implements Serializable, Iterable<Card> {
         out.writeObject(outList);
     }
      
-    
-
     
     // ArrayList inited with fixed size but not final - cards can be removed
     private ArrayList<Card> deck = new ArrayList(52);
@@ -215,7 +210,7 @@ public class Deck implements Serializable, Iterable<Card> {
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             
             // serialize through Serializable interface
-            out.writeObject(myDeck);    
+            out.writeObject(myDeck);   
             
             // tidy up
             out.close();

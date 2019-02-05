@@ -30,7 +30,10 @@ public interface Player {
     
     // gets the number of won tricks
     int getTricksWon();    
-        
+    
+    // reset number of tricks won (to be used each round)
+    void resetTricksWon();    
+    
     // methods to add/remove cards
     public void removeCard(Card c);
     
@@ -38,4 +41,6 @@ public interface Player {
     public void addHand(Hand h);
     public void removeHand(Hand h);
     
+    // used to reset the players strategys state
+    public void resetState();
 }
